@@ -283,6 +283,86 @@ public class MasterBot {
 				    thread1.start();
 				}
 			}
+			
+			//User gave the command for tcpportscan
+			else if(command[0].equals("tcpportscan"))
+			{
+				
+				if (command.length < 4)
+				{
+					System.out.println("Incorrect tcpportscan command");
+				}
+				else
+				{
+					Iterator<Client_connections> i = clientList.iterator();
+					Client_connections clicon1 =null;
+					
+					
+					if (command[1].matches("^(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$") == true) 
+					{
+						int found = 0;
+						while (i.hasNext()) {
+							 clicon1 = i.next();
+							if (clicon1.Slave_address.equals(command[1])) {
+								found = 1;
+								PrintStream p = new PrintStream(clicon1.Slave_socket.getOutputStream());
+								p.println("tcpportscan " + command[2] + " " + command[3]);
+								p.flush();
+							}
+						}
+						if (found == 0) {
+							System.out.println("Slave address not found");
+						}
+					}
+					else if (command[1].equals("all")) {
+						while (i.hasNext()) {
+							 clicon1 = i.next();
+							PrintStream p = new PrintStream(clicon1.Slave_socket.getOutputStream());
+							p.println("tcpportscan " + command[2] + " " + command[3]);
+							p.flush();
+						}
+					}
+					else {
+						int found = 0;
+						while (i.hasNext()) {
+							 clicon1 = i.next();
+							if (clicon1.Slave_name.equals(command[1])) {
+								found = 1;
+								PrintStream p = new PrintStream(clicon1.Slave_socket.getOutputStream());
+								p.println("tcpportscan " + command[2] + " " + command[3]);
+								p.flush();
+							}
+						}
+						if (found == 0) {
+							System.out.println("Slave name not found");
+						}
+					}
+					final Client_connections clicon2=clicon1;
+					
+					Thread thread1 = new Thread()
+		            {
+						public void run()
+						{
+							Scanner sc1;
+							try {
+								sc1 = new Scanner(clicon2.Slave_socket.getInputStream());
+								String ListOfTargetPorts = sc1.nextLine();
+								// System.out.println(ListOfTargetPorts);
+								System.out.println(ListOfTargetPorts + "\n");
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							
+						}
+				    };
+				    
+				    thread1.start();
+					
+					
+				
+				}
+			}
 			else {
 				System.out.println("Error: Incorrect command");
 			}
