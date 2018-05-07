@@ -55,7 +55,7 @@ public class MasterBot {
 				}
 			}
 			
-			//User gave the command to connect
+			// When user gave the command to connect
 			else if (command[0].equals("connect")) {
 				if (command.length < 4) {
 					System.out.println("Incorrect connect command");
@@ -155,6 +155,60 @@ public class MasterBot {
 					}
 				}
 			}
+			
+			//User gave the command to disconnect
+			else if (command[0].equals("disconnect")) {
+				if (command.length < 3) {
+					System.out.println("Incorrect disconnect command");
+				}
+				else {
+					int target_port = 0;
+					if (command.length > 3) {
+						target_port = Integer.parseInt(command[3]);
+					}
+					Iterator<Client_connections> i = clientList.iterator();
+					if (command[1].matches(
+							"^(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$") == true) {
+						int found = 0;
+						while (i.hasNext()) {
+							Client_connections clicon1 = i.next();
+							if (clicon1.Slave_address.equals(command[1])) {
+								found = 1;
+								PrintStream p = new PrintStream(clicon1.Slave_socket.getOutputStream());
+								p.println("disconnect " + command[2] + " " + target_port);
+								p.flush();
+							}
+						}
+						if (found == 0) {
+							System.out.println("Slave address not found");
+						}
+					}
+					else if (command[1].equals("all")) {
+						while (i.hasNext()) {
+							Client_connections clicon1 = i.next();
+							PrintStream p = new PrintStream(clicon1.Slave_socket.getOutputStream());
+							p.println("disconnect " + command[2] + " " + target_port);
+							p.flush();
+						}
+					}
+					else {
+						int found = 0;
+						while (i.hasNext()) {
+							Client_connections clicon1 = i.next();
+							if (clicon1.Slave_name.equals(command[1])) {
+								found = 1;
+								PrintStream p = new PrintStream(clicon1.Slave_socket.getOutputStream());
+								p.println("disconnect " + command[2] + " " + target_port);
+								p.flush();
+							}
+						}
+						if (found == 0) {
+							System.out.println("Slave name not found");
+						}
+					}
+				}
+			}
+			
 			
 			else {
 				System.out.println("Error: Incorrect command");
